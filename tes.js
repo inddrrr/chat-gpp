@@ -11,7 +11,7 @@ client.on("message", async msg => {
 
 client.on("message_create", async (msg) => {
     if (msg.body.startsWith(PREFIX)) {
-      const message = msg.body.replace(`${PREFIX} `, "");
+      const message = msg.body.split(`${PREFIX}`)[1];
   
       response = await bot(message);
       msg.reply(response);
@@ -22,9 +22,9 @@ async function bot(message) {
     let prompt_template =
       "Saya adalah kecerdasan buatan bernama " +
       BOT_NAME +
-      " AI yang dikembangkan oleh tim teknologi bernama AI Tech.\n\nHuman: Hai. Apa kabar?\n" +
+      "\n" +
       BOT_NAME +
-      ": Kabarku baik. Ada yang bisa saya bantu?\nHuman: " +
+      "Ada yang bisa saya bantu?\nHuman: " +
       message +
       "\n" +
       BOT_NAME +

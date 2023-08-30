@@ -20,9 +20,7 @@ const client = new Client({
   }
 });
 
-client.on('loading_screen', (percent, message) => {
-  console.log('LOADING SCREEN', percent, message);
-});
+client.initialize();
 
 client.on("qr", (qr) => {
   qrcode.generate(qr, { small: true });
@@ -51,5 +49,3 @@ client.on("disconnected", (reason) => {
   console.log("disconnected chat-gpp", reason);
 });
 
-
-client.initialize();
