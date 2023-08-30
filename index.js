@@ -1,4 +1,4 @@
-const { Client, LocalAuth, MessageMedia } = require("whatsapp-web.js");
+const { Client, LocalAuth } = require("whatsapp-web.js");
 require("dotenv").config();
 const qrcode = require("qrcode-terminal");
 const puppeteer = require("puppeteer");
@@ -12,90 +12,51 @@ const openai = new OpenAI({
 });
 
 const client = new Client({
-  puppeteer: {
-    headless: false,
-  },
-  authStrategy: new LocalAuth({
-    clientId: "CLIENT_ID_1",
-  }),
+  authStrategy: new LocalAuth(),
+  // proxyAuthentication: { username: 'username', password: 'password' },
+  puppeteer: { 
+      // args: ['--proxy-server=proxy-server-that-requires-authentication.example.com'],
+      headless: false
+  }
+});
+
+client.initialize();
+
+client.on('loading_screen', (percent, message) => {
+  console.log('LOADING SCREEN', percent, message);
 });
 
 client.on("qr", (qr) => {
   qrcode.generate(qr, { small: true });
 });
 
-client.on("authenticated", (session) => {
+client.on("authenticated", () => {
   console.log("Client is authenticated!");
+});
+
+client.on('auth_failure', msg => {
+  console.error('AUTHENTICATION FAILURE', msg);
 });
 
 client.on("ready", () => {
   console.log("Client is ready!");
 });
 
-client.on('message', msg => {
-	if(msg.body === 'hai') {
-		client.reply('halo');
-	}
-});
 
-client.on("message", async (msg) => {
-  if (msg.body.startsWith(PREFIX) && !msg.getChat().isGroup) {
-    const message = msg.body.replace(`${PREFIX} `, "");
+//message
 
-    response = await bot(message);
-    msg.reply(response);
-  }
-});
+client.on("message", async msg => {
+  console.log("MESSAGE RECEIVED", msg);
 
-client.on("message_create", async (msg) => {
-  if (msg.body.startsWith(PREFIX)) {
-    const message = msg.body.replace(`${PREFIX} `, "");
+  if(msg.body === 'hai') {
+		msg.reply('halo');
 
-    response = await bot(message);
-    msg.reply(response);
-  }
+	} else if (msg.body === '!ping') {
+    // Send a new message to the same chat
+    client.sendMessage(msg.from, 'pong');
+  } 
 });
 
 client.on("disconnected", (reason) => {
   console.log("disconnected chat-gpp", reason);
 });
-
-client.initialize();
-
-async function bot(message) {
-  let prompt_template =
-    "Saya adalah kecerdasan buatan bernama " +
-    BOT_NAME +
-    " AI yang dikembangkan oleh tim teknologi bernama AI Tech.\n\nHuman: Hai. Apa kabar?\n" +
-    BOT_NAME +
-    ": Kabarku baik. Ada yang bisa saya bantu?\nHuman: " +
-    message +
-    "\n" +
-    BOT_NAME +
-    ": ";
-
-  try {
-    const response = await openai.completions.create({
-      model: "text-davinci-003",
-      prompt: prompt_template,
-      temperature: 0.9,
-      max_tokens: 3000,
-      top_p: 1,
-      frequency_penalty: 0,
-      presence_penalty: 0.6,
-      stop: [" Human:", " " + BOT_NAME + ":"],
-    });
-    console.log(response.choices[0].text);
-
-    return response.choices[0].text;
-  } catch (error) {
-    if (error instanceof OpenAI.APIError) {
-      console.error(error.status);
-      console.error(error);
-      return "Maaf, saya tidak mengerti maksud anda.";
-    } else {
-      console.error(error.message);
-      return "Maaf, saya tidak mengerti maksud anda.";
-    }
-  }
-}
