@@ -1,6 +1,7 @@
-const { Client, LocalAuth } = require("whatsapp-web.js");
+const { Client, LocalAuth, MessageMedia } = require("whatsapp-web.js");
 require("dotenv").config();
 const qrcode = require("qrcode-terminal");
+const puppeteer = require("puppeteer");
 const PREFIX = process.env.PREFIX_BOT;
 const BOT_NAME = process.env.BOT_NAME;
 
@@ -11,10 +12,15 @@ const openai = new OpenAI({
 });
 
 const client = new Client({
-  authStrategy: new LocalAuth(),
+  puppeteer: {
+    headless: false,
+  },
+  authStrategy: new LocalAuth({
+    clientId: "CLIENT_ID_1",
+  }),
 });
 
-client.on("qr", qr => {
+client.on("qr", (qr) => {
   qrcode.generate(qr, { small: true });
 });
 
@@ -24,6 +30,12 @@ client.on("authenticated", (session) => {
 
 client.on("ready", () => {
   console.log("Client is ready!");
+});
+
+client.on('message', msg => {
+	if(msg.body === 'hai') {
+		client.reply('halo');
+	}
 });
 
 client.on("message", async (msg) => {
@@ -42,6 +54,10 @@ client.on("message_create", async (msg) => {
     response = await bot(message);
     msg.reply(response);
   }
+});
+
+client.on("disconnected", (reason) => {
+  console.log("disconnected chat-gpp", reason);
 });
 
 client.initialize();
