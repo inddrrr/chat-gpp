@@ -20,22 +20,12 @@ const client = new Client({
   }
 });
 
-client.initialize();
-
 client.on('loading_screen', (percent, message) => {
   console.log('LOADING SCREEN', percent, message);
 });
 
 client.on("qr", (qr) => {
   qrcode.generate(qr, { small: true });
-});
-
-client.on("authenticated", () => {
-  console.log("Client is authenticated!");
-});
-
-client.on('auth_failure', msg => {
-  console.error('AUTHENTICATION FAILURE', msg);
 });
 
 client.on("ready", () => {
@@ -48,15 +38,18 @@ client.on("ready", () => {
 client.on("message", async msg => {
   console.log("MESSAGE RECEIVED", msg);
 
-  if(msg.body === 'hai') {
-		msg.reply('halo');
+  if(msg.body === '.hai') {
+	  msg.reply('halo');
 
-	} else if (msg.body === '!ping') {
+  } else if (msg.body === '.gmn') {
     // Send a new message to the same chat
-    client.sendMessage(msg.from, 'pong');
+    client.sendMessage(msg.from, 'gpp');
   } 
 });
 
 client.on("disconnected", (reason) => {
   console.log("disconnected chat-gpp", reason);
 });
+
+
+client.initialize();
