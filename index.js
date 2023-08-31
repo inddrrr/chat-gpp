@@ -42,22 +42,25 @@ client.on("message", async msg => {
   } else if (msg.body === '.help') {
     // Help Promt
     client.sendMessage(msg.from, "Saya adalah bot bernama " + BOT_NAME + 
-    "\nSilahkan ketik chat dengan diawali dengan kata berikut: \n" +
-    "*.ask*  => untuk menanyakan apapun \n" +
+    "\nSilahkan ketik chat dengan diawali dengan kata berikut: \n\n" +
+    "*.ask* => untuk menanyakan apapun \n" +
     "*.draw* => untuk membuat suatu gambar");
 
   } else if (msg.body.startsWith(GPP_PREFIX) && !msg.getChat().isGroup) {
     const message = msg.body.replace(`${GPP_PREFIX} `, "");
 
     response = await gpp(message);
-    client.sendMessage(msg.from, response);
+    msg.reply(response);
 
   } else if (msg.body.startsWith(DRAW_PREFIX) && !msg.getChat().isGroup) {
     const message = msg.body.replace(`${DRAW_PREFIX} `, "");
 
     response = await draw(message);
     await client.sendMessage(msg.from, response, {caption: "nyoh!"});
-  } 
+
+  } else {
+    client.sendMessage(msg.from, "Gpp 🤧\n\nKetik *.help* untuk bantuan");
+  }
 });
 
 async function gpp(message) {

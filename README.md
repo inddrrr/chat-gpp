@@ -14,10 +14,34 @@ git clone https://github.com/inddrrr/chat-gpp.git
 npm install
 ```
 
-3. Run the following command to start the server
+3. Edit OPEN_AI_API in .env file with your openai API Key
+
+4. Run the following command to start the server
 
 ```bash
-npm run watch
+npm run bot
 ```
 
-4. Scan the QR code using your Whatsapp app and start chatting with the bot using prefix from `.env` file
+5. Scan the QR code using your Whatsapp app and start chatting with the bot using commands
+
+## Commands
+
+>Type `command` then describe what you want to ask
+
+Show help prompt :
+
+```
+.help
+```
+
+Ask any question :
+
+```
+.ask
+```
+
+Draw an image :
+
+```
+.draw
+```
