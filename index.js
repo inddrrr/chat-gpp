@@ -3,6 +3,7 @@ require("dotenv").config();
 const qrcode = require("qrcode-terminal");
 const puppeteer = require("puppeteer");
 const OpenAI = require("openai");
+const BOT_NAME = process.env.BOT_NAME;
 const GPP_PREFIX = process.env.GPP_PREFIX;
 const DRAW_PREFIX = process.env.DRAW_PREFIX;
 
@@ -38,15 +39,18 @@ client.on("message", async msg => {
   if(msg.body === '.hai') {
 	  msg.reply('halo');
 
-  } else if (msg.body === '.gmn') {
-    // Send a new message to the same chat
-    client.sendMessage(msg.from, 'gpp');
+  } else if (msg.body === '.help') {
+    // Help Promt
+    client.sendMessage(msg.from, "Saya adalah bot bernama " + BOT_NAME + 
+    "\nSilahkan ketik chat dengan diawali dengan kata berikut: \n" +
+    "*.ask*  => untuk menanyakan apapun \n" +
+    "*.draw* => untuk membuat suatu gambar");
 
   } else if (msg.body.startsWith(GPP_PREFIX) && !msg.getChat().isGroup) {
     const message = msg.body.replace(`${GPP_PREFIX} `, "");
 
     response = await gpp(message);
-    msg.reply(response);
+    client.sendMessage(msg.from, response);
 
   } else if (msg.body.startsWith(DRAW_PREFIX) && !msg.getChat().isGroup) {
     const message = msg.body.replace(`${DRAW_PREFIX} `, "");
@@ -61,7 +65,11 @@ async function gpp(message) {
     const response = await openai.completions.create({
       model: "text-davinci-003",
       prompt: message,
+      temperature: 0.9,
       max_tokens: 3000,
+      top_p: 1,
+      frequency_penalty: 0,
+      presence_penalty: 0.6,
     });
     console.log(response.choices[0].text);
 
