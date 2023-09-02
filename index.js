@@ -22,18 +22,39 @@ const client = new Client({
 
 client.initialize();
 
+client.on('loading_screen', (percent, message) => {
+  console.log('LOADING SCREEN', percent, message);
+});
+
+
 client.on("qr", (qr) => {
   qrcode.generate(qr, { small: true });
+});
+
+client.on('authenticated', () => {
+  console.log('AUTHENTICATED');
+});
+
+client.on('auth_failure', msg => {
+  // Fired if session restore was unsuccessful
+  console.error('AUTHENTICATION FAILURE', msg);
 });
 
 client.on("ready", () => {
   console.log("Client is ready!");
 });
 
+//reject incoming call
+client.on("call", async call => {
+  await call.reject();
+  await client.sendMessage(call.from, "Nomer ini hanya bisa menerima pesan teks 🙏🤧")
+});
 
-//message
-
+//message responses
 client.on("message", async msg => {
+
+  const chat = await msg.getChat();
+
   console.log("MESSAGE RECEIVED", msg);
 
   if(msg.body === '.hai') {
@@ -49,12 +70,15 @@ client.on("message", async msg => {
   } else if (msg.body.startsWith(GPP_PREFIX) && !msg.getChat().isGroup) {
     const message = msg.body.replace(`${GPP_PREFIX} `, "");
 
+    chat.sendStateTyping();
     response = await gpp(message);
     msg.reply(response);
+    chat.clearState();
 
   } else if (msg.body.startsWith(DRAW_PREFIX) && !msg.getChat().isGroup) {
     const message = msg.body.replace(`${DRAW_PREFIX} `, "");
 
+    msg.react('🫡');
     response = await draw(message);
     await client.sendMessage(msg.from, response, {caption: "nyoh!"});
 
@@ -63,16 +87,17 @@ client.on("message", async msg => {
   }
 });
 
+//.ask
 async function gpp(message) {
   try {
     const response = await openai.completions.create({
       model: "text-davinci-003",
       prompt: message,
-      temperature: 0.9,
+      temperature: 0.2,
       max_tokens: 3000,
-      top_p: 1,
-      frequency_penalty: 0,
-      presence_penalty: 0.6,
+      top_p: 0.9,
+      frequency_penalty: 0.1,
+      presence_penalty: 0.1,
     });
     console.log(response.choices[0].text);
 
@@ -92,6 +117,7 @@ async function gpp(message) {
   }
 }
 
+//.draw
 async function draw(message) {
   try {
     const response = await openai.images.generate({
