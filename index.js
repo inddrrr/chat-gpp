@@ -1,11 +1,13 @@
-const { Client, LocalAuth, MessageMedia } = require("whatsapp-web.js");
+const { Client, LocalAuth, MessageMedia, Buttons, List } = require("whatsapp-web.js");
 require("dotenv").config();
 const qrcode = require("qrcode-terminal");
 const puppeteer = require("puppeteer");
 const OpenAI = require("openai");
-const BOT_NAME = process.env.BOT_NAME;
-const GPP_PREFIX = process.env.GPP_PREFIX;
-const DRAW_PREFIX = process.env.DRAW_PREFIX;
+const BOT_NAME = "Chat GPP";
+
+//commands
+const GPP_PREFIX = ".ask";
+const DRAW_PREFIX = ".draw";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY // This is also the default, can be omitted
@@ -84,7 +86,8 @@ client.on("message", async msg => {
 
   } else {
     client.sendMessage(msg.from, "Gpp 🤧\n\nKetik *.help* untuk bantuan");
-  }
+
+  } 
 });
 
 //.ask
