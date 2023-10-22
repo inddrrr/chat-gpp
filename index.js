@@ -1,4 +1,4 @@
-const { Client, LocalAuth, MessageMedia, Buttons, List } = require("whatsapp-web.js");
+const { Client, LocalAuth, MessageMedia } = require("whatsapp-web.js");
 require("dotenv").config();
 const qrcode = require("qrcode-terminal");
 const puppeteer = require("puppeteer");
